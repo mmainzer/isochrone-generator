@@ -306,52 +306,49 @@ var map = new mapboxgl.Map({
     hash: true,
     pitchWithRotate: false,
     container: 'map', // container id
-    style: 'mapbox://styles/mapbox/dark-v9', //stylesheet location
+    style: 'mapbox://styles/mmainzer/cjlcjbqcp6em72sl2rrbevsgp', //stylesheet location
     center: [-84.390,33.749], // starting position
     zoom: 10 // starting zoom
 });
 
 map.on('load', function () {
-    map.addSource('museums', {
-        type: 'vector',
-        url: 'mapbox://mapbox.2opop9hr'
-    });
     map.addLayer({
-        'id': 'museums',
-        'type': 'circle',
-        'source': 'museums',
-        'layout': {
-            'visibility': 'visible'
+        'id': 'Hospitals',
+        'type': 'symbol',
+        'source': {
+            type: 'vector',
+            url: 'mapbox://mmainzer.cjmghn93a02782wo02st7avxd-96wow'
         },
-        'paint': {
-            'circle-radius': 8,
-            'circle-color': 'rgba(55,148,179,1)'
-        },
-        'source-layer': 'museum-cusco'
-    });
-
-    map.addSource('contours', {
-        type: 'vector',
-        url: 'mapbox://mapbox.mapbox-terrain-v2'
-    });
-    map.addLayer({
-        'id': 'contours',
-        'type': 'line',
-        'source': 'contours',
-        'source-layer': 'contour',
         'layout': {
             'visibility': 'visible',
-            'line-join': 'round',
-            'line-cap': 'round'
+            'icon-image': 'hospital-15',
+            'icon-allow-overlap': true
         },
-        'paint': {
-            'line-color': '#877b59',
-            'line-width': 1
-        }
+        'source-layer': 'ga-hospitals'
+    });
+
+    map.addLayer({
+        'id': 'Schools',
+        'type': 'symbol',
+        'source': {
+            type: 'vector',
+            url: 'mapbox://mmainzer.cjmgecazm0uxy2wp2jktvejwf-10wqb'
+        },
+        'layout': {
+            'visibility': 'visible',
+            'icon-image': 'college-11',
+            'icon-allow-overlap': true
+        },
+//       'paint': {
+//            'circle-radius': 4,
+//            'circle-color': 'rgba(255,255,255,0.9)',
+//
+//        },
+        'source-layer': 'ga-public-schools'
     });
 });
 
-var toggleableLayerIds = [ 'contours', 'museums' ];
+var toggleableLayerIds = [ 'Hospitals', 'Schools' ];
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
@@ -380,6 +377,60 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     var layers = document.getElementById('menu');
     layers.appendChild(link);
 }
+
+map.on('click', function(e) {
+  var features = map.queryRenderedFeatures(e.point, {
+    layers: ['Hospitals'] // replace this with the name of the layer
+  });
+
+  if (!features.length) {
+    return;
+  }
+
+  var feature = features[0];
+
+  var popup = new mapboxgl.Popup({ offset: [0, -15] })
+    .setLngLat(feature.geometry.coordinates)
+    .setHTML('<h3>' + feature.properties.NAME + '</h3><p>' + feature.properties.TYPE + '</p>')
+    .setLngLat(feature.geometry.coordinates)
+    .addTo(map);
+});
+
+map.on('click', function(e) {
+  var features = map.queryRenderedFeatures(e.point, {
+    layers: ['Schools'] // replace this with the name of the layer
+  });
+
+  if (!features.length) {
+    return;
+  }
+
+  var feature = features[0];
+
+  var popup = new mapboxgl.Popup({ offset: [0, -15] })
+    .setLngLat(feature.geometry.coordinates)
+    .setHTML('<h3>' + feature.properties.School + '</h3><p>' + feature.properties.District + '</p>')
+    .setLngLat(feature.geometry.coordinates)
+    .addTo(map);
+});
+
+map.on('mouseenter', 'Hospitals', function () {
+    map.getCanvas().style.cursor = 'pointer';
+});
+
+// Change it back to a pointer when it leaves.
+map.on('mouseleave', 'Hospitals', function () {
+    map.getCanvas().style.cursor = '';
+});
+
+map.on('mouseenter', 'Schools', function () {
+    map.getCanvas().style.cursor = 'pointer';
+});
+
+// Change it back to a pointer when it leaves.
+map.on('mouseleave', 'Schools', function () {
+    map.getCanvas().style.cursor = '';
+});
 
 var colorSchemes = {
     mono: [
